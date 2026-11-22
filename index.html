@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Entrega Caja Navideña</title>
+<style>
+  :root {
+    --fondo: #EEF3F0;
+    --superficie: #FFFFFF;
+    --tinta: #12211B;
+    --gris: #5B6B64;
+    --borde: #C5D3CC;
+    --acento: #0E3B2C;
+    --acento-claro: #1F5C46;
+    --btn-fondo: #0E3B2C;
+    --btn-texto: #FFFFFF;
+    --oro: #E2B23C;
+    --saludo: #B3261E;
+    --ok: #0F6B45;
+    --ya: #A3221E;
+    --aviso: #8A5A00;
+    --bg: var(--fondo);
+    --stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color-scheme: light;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --fondo: #0B1713; --superficie: #13241D; --tinta: #E6EFEA; --gris: #9DB0A7; --borde: #2E463B;
+      --acento: #8FD3B2; --acento-claro: #8FD3B2; --btn-fondo: #8FD3B2; --btn-texto: #0B1713; --saludo: #F28B82;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --fondo: #0B1713; --superficie: #13241D; --tinta: #E6EFEA; --gris: #9DB0A7; --borde: #2E463B;
+    --acento: #8FD3B2; --acento-claro: #8FD3B2; --btn-fondo: #8FD3B2; --btn-texto: #0B1713; --saludo: #F28B82;
+    color-scheme: dark;
+  }
+  :root[data-estado="ok"] { --bg: var(--ok); }
+  :root[data-estado="ya"] { --bg: var(--ya); }
+  :root[data-estado="aviso"] { --bg: var(--aviso); }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  html { background: var(--bg); }
+  body {
+    font-family: var(--stack); background: var(--bg); color: var(--tinta);
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  .vista { display: none; min-height: 100%; position: relative; }
+  .vista.activa { display: flex; flex-direction: column; }
+  .contenido { width: 100%; max-width: 480px; margin: 0 auto; padding: 8px 24px 32px; display: flex; flex-direction: column; flex: 1; }
+
+  /* ── Guirnalda de luces ── */
+  .guirnalda { position: relative; height: 44px; width: 100%; max-width: 520px; margin: 0 auto; }
+  .guirnalda svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .guirnalda .luces { position: absolute; inset: 0; display: flex; justify-content: space-between; padding: 0 14px; }
+  .luz { width: 11px; height: 15px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; margin-top: 12px; position: relative; animation: titila 1.6s ease-in-out infinite; }
+  .luz::before { content: ""; position: absolute; top: -4px; left: 3px; width: 5px; height: 5px; background: #6E7D76; border-radius: 1px; }
+  .luz:nth-child(even) { margin-top: 20px; }
+  .luz:nth-child(3n+1) { background: #D63A33; box-shadow: 0 0 8px #D63A33; }
+  .luz:nth-child(3n+2) { background: var(--oro); box-shadow: 0 0 8px var(--oro); animation-delay: .5s; }
+  .luz:nth-child(3n)   { background: #2FA36B; box-shadow: 0 0 8px #2FA36B; animation-delay: 1s; }
+  @keyframes titila { 0%, 100% { opacity: 1; } 50% { opacity: .35; box-shadow: none; } }
+
+  /* ── Formulario ── */
+  .marca { color: var(--acento-claro); font-size: 15px; font-weight: 600; margin: 6px 0 6px; }
+  h1 { font-size: 30px; line-height: 1.15; margin: 0 0 8px; color: var(--acento); letter-spacing: -0.01em; }
+  .bajada { font-size: 16px; color: var(--gris); margin: 0 0 26px; line-height: 1.4; }
+  .saludo { font-size: 22px; font-weight: 800; color: var(--saludo); margin: 4px 0 6px; }
+  .festivo { margin: 22px 0 0; padding: 2px 0 2px 14px; border-left: 3px solid #F6D77E; }
+  .festivo .de { font-size: 14px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #F6D77E; margin: 0 0 6px; }
+  .festivo .txt { font-size: 16px; line-height: 1.45; margin: 0 0 6px; opacity: .95; }
+  .festivo .cierre { font-size: 22px; font-weight: 800; color: #F6D77E; margin: 8px 0 0; }
+  label { display: block; font-size: 17px; font-weight: 600; margin-bottom: 10px; }
+  input {
+    width: 100%; font: inherit; font-size: 28px; font-weight: 600; letter-spacing: 0.04em; padding: 16px 18px;
+    border: 2px solid var(--borde); border-radius: 12px; background: var(--superficie); color: var(--tinta);
+    font-variant-numeric: tabular-nums;
+  }
+  input:focus { outline: none; border-color: var(--oro); box-shadow: 0 0 0 4px rgba(226,178,60,.25); }
+  .btn {
+    font: inherit; font-size: 19px; font-weight: 700; width: 100%; margin-top: 22px; padding: 18px;
+    border: 0; border-radius: 12px; background: var(--btn-fondo); color: var(--btn-texto); cursor: pointer;
+  }
+  .btn:focus-visible { outline: 3px solid var(--oro); outline-offset: 3px; }
+  .btn[disabled] { opacity: .6; cursor: wait; }
+  .btn.sec { background: transparent; color: var(--acento); border: 2px solid var(--borde); margin-top: 12px; font-size: 17px; padding: 15px; }
+  .error { color: #C0322C; font-size: 16px; font-weight: 600; margin: 14px 0 0; min-height: 1.4em; }
+  .pie { margin-top: auto; padding-top: 28px; font-size: 14px; color: var(--gris); line-height: 1.5; }
+  .pie b { color: var(--tinta); }
+
+  /* ── Confirmación ── */
+  .pregunta { font-size: 24px; font-weight: 700; color: var(--acento); margin: 10px 0 18px; }
+  .tarjeta {
+    background: var(--superficie); border: 2px solid var(--borde); border-radius: 16px; padding: 20px;
+    border-top: 6px solid var(--oro);
+  }
+  .tarjeta .nombre-c { font-size: 26px; font-weight: 800; line-height: 1.15; margin: 0 0 8px; overflow-wrap: anywhere; }
+  .tarjeta .baja-c { font-size: 15px; font-weight: 700; color: var(--saludo); margin: 10px 0 0; }
+  .baja { font-size: 17px; font-weight: 700; margin: 10px 0 0; color: #F6D77E; }
+  .tarjeta .sector-c { font-size: 17px; color: var(--gris); margin: 0; line-height: 1.4; }
+
+  /* ── Resultado ── */
+  #vRes { color: #FFFFFF; overflow: hidden; }
+  #vRes .contenido { padding-top: 28px; position: relative; z-index: 1; }
+  .estado { font-size: 22px; font-weight: 700; margin: 0 0 22px; display: flex; align-items: center; gap: 10px; }
+  .estado .estrella { width: 22px; height: 22px; flex: none; }
+  :root[data-estado="ya"] .estrella, :root[data-estado="aviso"] .estrella { display: none; }
+  .nombre { font-size: 34px; line-height: 1.1; font-weight: 800; margin: 0 0 12px; letter-spacing: -0.01em; overflow-wrap: anywhere; }
+  .sector { font-size: 20px; line-height: 1.35; margin: 0; opacity: .92; }
+  .registro { font-size: 18px; margin: 22px 0 0; line-height: 1.4; }
+  .registro strong { font-variant-numeric: tabular-nums; }
+  .mensaje { font-size: 20px; line-height: 1.4; margin: 0; }
+
+  .reloj { margin-top: auto; padding-top: 28px; display: flex; align-items: center; gap: 14px; }
+  .reloj .hora { font-size: clamp(44px, 14vw, 88px); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .reloj .fecha { font-size: 16px; opacity: .85; margin-top: 6px; }
+  .btn.claro { background: transparent; color: #FFFFFF; border: 2px solid rgba(255,255,255,.6); font-size: 16px; padding: 12px; margin-top: 24px; }
+
+  /* ── Papá Noel ── */
+  .santa { width: 74px; height: 82px; flex: none; animation: rebote 1s ease-in-out infinite alternate; transform-origin: 50% 90%; }
+  .santa .ojos { transform-box: fill-box; transform-origin: center; animation: parpadeo 3.2s infinite; }
+  .santa .pompon { transform-box: fill-box; transform-origin: center; animation: pompon 1s ease-in-out infinite alternate; }
+  @keyframes rebote { from { transform: translateY(0) rotate(-4deg); } to { transform: translateY(-5px) rotate(4deg); } }
+  @keyframes parpadeo { 0%, 90%, 100% { transform: scaleY(1); } 94% { transform: scaleY(.1); } }
+  @keyframes pompon { from { transform: translate(0, 0); } to { transform: translate(-1.5px, 2px); } }
+
+  /* ── Nieve ── */
+  .nieve { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+  .copo { position: absolute; top: -10px; border-radius: 50%; background: #FFFFFF; opacity: .45; animation: cae linear infinite; }
+  @keyframes cae { to { transform: translate(var(--deriva, 20px), 110vh); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .luz, .copo { animation: none; }
+    .nieve { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Paso 1: ingreso -->
+<section id="vForm" class="vista activa">
+  <div class="guirnalda" aria-hidden="true">
+    <svg viewBox="0 0 360 44" preserveAspectRatio="none">
+      <path d="M0 8 Q 30 26 60 12 T 120 12 T 180 12 T 240 12 T 300 12 T 360 8" fill="none" stroke="#6E7D76" stroke-width="1.5"/>
+    </svg>
+    <div class="luces"><span class="luz"></span><span class="luz"></span><span class="luz"></span><span class="luz"></span><span class="luz"></span><span class="luz"></span><span class="luz"></span><span class="luz"></span><span class="luz"></span></div>
+  </div>
+  <div class="contenido">
+    <p class="marca">CEMIC Recursos Humanos</p>
+    <h1 id="titulo">Entrega Caja Navideña 2026</h1>
+    <p class="saludo">¡Felices fiestas!</p>
+    <p class="bajada">Ingresá tu número para retirar tu caja.</p>
+
+    <label for="dato">Tu DNI o número de legajo</label>
+    <input id="dato" inputmode="numeric" autocomplete="off" enterkeyhint="go" maxlength="20">
+    <button id="btnBuscar" class="btn" type="button">Continuar</button>
+    <p id="error" class="error" role="alert"></p>
+
+    <p class="pie" id="pie"></p>
+  </div>
+</section>
+
+<!-- Paso 2: confirmación -->
+<section id="vConf" class="vista">
+  <div class="guirnalda" aria-hidden="true">
+    <svg viewBox="0 0 360 44" preserveAspectRatio="none">
+      <path d="M0 8 Q 30 26 60 12 T 120 12 T 180 12 T 240 12 T 300 12 T 360 8" fill="none" stroke="#6E7D76" stroke-width="1.5"/>
+    </svg>
+    <div class="luces"><span class="luz"></span><span class="luz"></span><span class="luz"></span><span class="luz"></span><span class="luz"></span><span class="luz"></span><span class="luz"></span><span class="luz"></span><span class="luz"></span></div>
+  </div>
+  <div class="contenido">
+    <p class="pregunta">¿Sos vos?</p>
+    <div class="tarjeta">
+      <p id="cNombre" class="nombre-c"></p>
+      <p id="cSector" class="sector-c"></p>
+      <p id="cBaja" class="baja-c" hidden></p>
+    </div>
+    <button id="btnSi" class="btn" type="button">Sí, registrar retiro</button>
+    <button id="btnNo" class="btn sec" type="button">No, cambiar número</button>
+  </div>
+</section>
+
+<!-- Paso 3: resultado -->
+<section id="vRes" class="vista" aria-live="assertive">
+  <div class="nieve" id="nieve" aria-hidden="true"></div>
+  <div class="contenido">
+    <p class="estado"><svg class="estrella" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z" fill="#E2B23C"/></svg><span id="rEstado"></span></p>
+    <div id="rCuerpo"></div>
+
+    <div class="reloj" aria-hidden="true">
+      <svg class="santa" viewBox="0 0 100 110">
+        <circle cx="50" cy="60" r="24" fill="#F3C9A6"/>
+        <circle cx="35" cy="66" r="4.5" fill="#EE9C96" opacity=".7"/>
+        <circle cx="65" cy="66" r="4.5" fill="#EE9C96" opacity=".7"/>
+        <path d="M22 62 Q 20 96 50 106 Q 80 96 78 62 Q 66 76 50 74 Q 34 76 22 62 Z" fill="#FFFFFF"/>
+        <ellipse cx="42" cy="72" rx="9.5" ry="5" fill="#FFFFFF"/>
+        <ellipse cx="58" cy="72" rx="9.5" ry="5" fill="#FFFFFF"/>
+        <circle cx="50" cy="66" r="4.8" fill="#E39282"/>
+        <g class="ojos"><circle cx="41" cy="57" r="2.9" fill="#1E1E1E"/><circle cx="59" cy="57" r="2.9" fill="#1E1E1E"/></g>
+        <path d="M16 46 C 20 16, 50 2, 70 12 C 82 18, 90 30, 88 44 L 80 46 Z" fill="#D2302A" stroke="#FFFFFF" stroke-width="1.5" stroke-linejoin="round"/>
+        <rect x="12" y="40" width="76" height="13" rx="6.5" fill="#FFFFFF"/>
+        <circle class="pompon" cx="88" cy="44" r="7" fill="#FFFFFF"/>
+      </svg>
+      <div>
+        <div id="relojHora" class="hora">--:--:--</div>
+        <div id="relojFecha" class="fecha"></div>
+      </div>
+    </div>
+    <button id="btnVolver" class="btn claro" type="button">Volver</button>
+  </div>
+</section>
+
+<script>
+  /* ===== Configuración ===== */
+  const API_URL = 'https://script.google.com/macros/s/AKfycbwOS8q3Wa95BfmUeNptfeZuF-X2g7I1Y3JiIN1tnZsBGQRQq4TLBEvlSOCIw0IZjjksyg/exec';
+  const TZ = 'America/Argentina/Buenos_Aires';
+
+  const params = new URLSearchParams(location.search);
+  const DEMO = params.has('demo');
+  const PUNTO = (params.get('punto') || '').trim().slice(0, 60);
+  const $ = id => document.getElementById(id);
+  let offsetMs = 0;
+  let datoActual = '';
+
+  /* ===== Comunicación con Apps Script ===== */
+  async function api(payload) {
+    if (DEMO) return mock(payload);
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 25000);
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload),
+        redirect: 'follow',
+        signal: ctrl.signal
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const r = await res.json();
+      if (typeof r.serverMs === 'number') offsetMs = r.serverMs - Date.now();
+      return r;
+    } finally {
+      clearTimeout(t);
+    }
+  }
+
+  /* ===== Modo demo (?demo): datos de prueba, no toca la planilla ===== */
+  const DEMO_PADRON = [
+    { legajo: '1001', dni: '30111222', nombre: 'María Laura Gómez', area: 'Enfermería', departamento: 'Internación Pediátrica', fechaBaja: '' },
+    { legajo: '1002', dni: '28999888', nombre: 'Juan Pablo Ferreyra', area: 'Administración', departamento: 'Facturación', fechaBaja: '' },
+    { legajo: '1003', dni: '33444555', nombre: 'Lucía Benítez', area: 'Laboratorio', departamento: 'Hematología', fechaBaja: '05/12/2026' }
+  ];
+  const demoEntregas = { '28999888': Date.now() - 7 * 60000 };
+  function demoPartes(ms) {
+    const f = o => new Intl.DateTimeFormat('es-AR', Object.assign({ timeZone: TZ }, o)).format(new Date(ms));
+    return { fecha: f({ day: '2-digit', month: '2-digit', year: 'numeric' }), hora: f({ hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }), registroMs: ms };
+  }
+  function mock(payload) {
+    return new Promise(res => setTimeout(() => {
+      const now = Date.now();
+      if (payload.accion === 'config') return res({ estado: 'CONFIG', titulo: 'Entrega Caja Navideña 2026 (demo)', activo: true, serverMs: now });
+      const d = String(payload.dato).replace(/\D/g, '');
+      const p = DEMO_PADRON.find(x => x.dni === d || x.legajo === d);
+      if (!p) return res({ estado: 'NO_ENCONTRADO', mensaje: 'No encontramos ese DNI o legajo en el padrón. Acercate a RRHH.', serverMs: now });
+      if (demoEntregas[p.dni]) return res(Object.assign({ estado: 'YA_ENTREGADO', persona: p, serverMs: now }, demoPartes(demoEntregas[p.dni])));
+      if (payload.accion === 'consultar') return res({ estado: 'ENCONTRADO', persona: p, serverMs: now });
+      demoEntregas[p.dni] = now;
+      res(Object.assign({ estado: 'OK', persona: p, serverMs: now }, demoPartes(now)));
+    }, 500));
+  }
+
+  /* ===== Reloj ===== */
+  const fmtHora = new Intl.DateTimeFormat('es-AR', { timeZone: TZ, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  const fmtFecha = new Intl.DateTimeFormat('es-AR', { timeZone: TZ, weekday: 'long', day: 'numeric', month: 'long' });
+  function tic() {
+    const ahora = new Date(Date.now() + offsetMs);
+    $('relojHora').textContent = fmtHora.format(ahora);
+    $('relojFecha').textContent = fmtFecha.format(ahora);
+  }
+  setInterval(tic, 250); tic();
+
+  /* ===== Interfaz ===== */
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function sector(p) {
+    const partes = [p.departamento, p.area].filter(Boolean);
+    if (partes.length === 2 && partes[0].toLowerCase() === partes[1].toLowerCase()) partes.pop();
+    return partes.map(esc).join('<br>');
+  }
+  function haceCuanto(ms) {
+    const min = Math.floor(ms / 60000);
+    if (min < 1) return 'hace menos de un minuto';
+    if (min === 1) return 'hace 1 minuto';
+    if (min < 60) return 'hace ' + min + ' minutos';
+    const h = Math.floor(min / 60);
+    return h === 1 ? 'hace 1 hora' : 'hace ' + h + ' horas';
+  }
+  function mostrar(id, estado) {
+    ['vForm', 'vConf', 'vRes'].forEach(v => $(v).classList.toggle('activa', v === id));
+    if (estado) document.documentElement.dataset.estado = estado;
+    else delete document.documentElement.dataset.estado;
+    window.scrollTo(0, 0);
+  }
+  function nevar() {
+    const n = $('nieve');
+    if (n.childElementCount) return;
+    for (let i = 0; i < 16; i++) {
+      const c = document.createElement('span');
+      const s = 3 + Math.random() * 4;
+      c.className = 'copo';
+      c.style.cssText = 'left:' + (Math.random() * 100) + '%;width:' + s + 'px;height:' + s + 'px;' +
+        'animation-duration:' + (7 + Math.random() * 6) + 's;animation-delay:-' + (Math.random() * 10) + 's;' +
+        '--deriva:' + (Math.random() * 40 - 20) + 'px';
+      n.appendChild(c);
+    }
+  }
+
+  const MENSAJE =
+    '<div class="festivo">' +
+    '<p class="de">CEMIC te desea</p>' +
+    '<p class="txt">Que esta Navidad llegue con momentos de alegría, encuentro y descanso.</p>' +
+    '<p class="txt">Gracias por ser parte de nuestro camino y por el compromiso de cada día.</p>' +
+    '<p class="txt">Que el año que comienza nos encuentre con nuevos sueños y oportunidades para seguir creciendo juntos.</p>' +
+    '<p class="cierre">¡Felices Fiestas!</p></div>';
+
+  function render(r) {
+    if (r.estado === 'ERROR') {
+      $('error').textContent = r.mensaje;
+      mostrar('vForm');
+      return;
+    }
+    if (r.estado === 'ENCONTRADO') {
+      $('cNombre').textContent = r.persona.nombre;
+      $('cSector').innerHTML = sector(r.persona);
+      $('cBaja').hidden = !r.persona.fechaBaja;
+      $('cBaja').textContent = r.persona.fechaBaja ? 'Fecha de baja: ' + r.persona.fechaBaja : '';
+      mostrar('vConf');
+      return;
+    }
+
+    const baja = r.persona && r.persona.fechaBaja ? '<p class="baja">Fecha de baja: ' + esc(r.persona.fechaBaja) + '</p>' : '';
+    if (r.estado === 'OK') {
+      $('rEstado').textContent = 'Caja entregada';
+      $('rCuerpo').innerHTML =
+        '<p class="nombre">' + esc(r.persona.nombre) + '</p>' +
+        '<p class="sector">' + sector(r.persona) + '</p>' + baja +
+        '<p class="registro">Registrado el <strong>' + esc(r.fecha) + '</strong> a las <strong>' + esc(r.hora) + '</strong></p>' +
+        MENSAJE;
+      $('btnVolver').hidden = true;
+      nevar();
+      mostrar('vRes', 'ok');
+    } else if (r.estado === 'YA_ENTREGADO') {
+      $('rEstado').textContent = 'Esta caja ya fue retirada';
+      $('rCuerpo').innerHTML =
+        '<p class="nombre">' + esc(r.persona.nombre) + '</p>' +
+        '<p class="sector">' + sector(r.persona) + '</p>' +
+        '<p class="registro">Retiro registrado el <strong>' + esc(r.fecha) + '</strong> a las <strong>' + esc(r.hora) + '</strong><br>(' +
+        haceCuanto(r.serverMs - r.registroMs) + ')</p>';
+      $('btnVolver').hidden = false;
+      nevar();
+      mostrar('vRes', 'ya');
+    } else {
+      const titulos = { INACTIVO: 'Registro cerrado', NO_HABILITADO: 'Consultá en RRHH', NO_ENCONTRADO: 'No encontrado' };
+      $('rEstado').textContent = titulos[r.estado] || 'Atención';
+      $('rCuerpo').innerHTML = '<p class="mensaje">' + esc(r.mensaje) + '</p>';
+      $('btnVolver').hidden = r.estado === 'INACTIVO';
+      mostrar('vRes', 'aviso');
+    }
+  }
+
+  async function llamar(btn, textoEspera, textoNormal, payload) {
+    btn.disabled = true; btn.textContent = textoEspera;
+    try {
+      render(await api(payload));
+    } catch (err) {
+      $('error').textContent = 'No se pudo conectar. Revisá la señal y probá de nuevo.';
+      mostrar('vForm');
+    } finally {
+      btn.disabled = false; btn.textContent = textoNormal;
+    }
+  }
+
+  function buscar() {
+    const dato = $('dato').value.trim();
+    $('error').textContent = '';
+    if (!dato) { $('error').textContent = 'Ingresá tu DNI o tu número de legajo.'; $('dato').focus(); return; }
+    datoActual = dato;
+    llamar($('btnBuscar'), 'Buscando…', 'Continuar', { accion: 'consultar', dato: dato });
+  }
+  function confirmar() {
+    llamar($('btnSi'), 'Registrando…', 'Sí, registrar retiro', { accion: 'registrar', dato: datoActual, punto: PUNTO });
+  }
+  function volver() { $('dato').value = ''; datoActual = ''; mostrar('vForm'); $('dato').focus(); }
+
+  $('pie').innerHTML = (PUNTO ? 'Punto de entrega: <b>' + esc(PUNTO) + '</b>' : '') +
+    (DEMO ? (PUNTO ? '<br>' : '') + 'Modo demo: <b>30111222</b> o <b>1001</b> (verde), <b>28999888</b> (ya retirado), <b>33444555</b> (con fecha de baja).' : '');
+  $('btnBuscar').addEventListener('click', buscar);
+  $('dato').addEventListener('keydown', e => { if (e.key === 'Enter') buscar(); });
+  $('btnSi').addEventListener('click', confirmar);
+  $('btnNo').addEventListener('click', volver);
+  $('btnVolver').addEventListener('click', volver);
+
+  api({ accion: 'config' }).then(c => {
+    if (c.titulo) { $('titulo').textContent = c.titulo; document.title = c.titulo; }
+    if (c.activo === false) render({ estado: 'INACTIVO', mensaje: c.msjInactivo });
+  }).catch(() => { /* si falla, el formulario igual queda disponible */ });
+</script>
+</body>
+</html>
